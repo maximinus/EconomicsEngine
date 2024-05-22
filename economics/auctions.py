@@ -2,8 +2,8 @@ from economics.offers import Transaction
 
 
 class SingleAuction:
-    def __init__(self, product):
-        self.product = product
+    def __init__(self, product_id):
+        self.product_id = product_id
         self.sells = []
         self.buys = []
         self.transactions = []
@@ -28,11 +28,11 @@ class SingleAuction:
         total_cost = unit_cost * quantity_sold
         sell.seller.money += total_cost
         buy.buyer.money -= total_cost
-        buy.buyer.add_stock(buy.product, quantity_sold)
-        sell.seller.remove_stock(buy.product, quantity_sold)
+        buy.buyer.add_stock(buy.product_id, quantity_sold)
+        sell.seller.remove_stock(buy.product_id, quantity_sold)
         sell.total_offered -= quantity_sold
         buy.total_wanted -= quantity_sold
-        self.transactions.append(Transaction(buy.product, quantity_sold, unit_cost))
+        self.transactions.append(Transaction(buy.product_id, quantity_sold, unit_cost))
 
     def perform(self):
         if not self.valid:
@@ -64,20 +64,20 @@ def create_auctions(sells, buys):
     # the auction is separate for each different type of product, so first match these
     auctions = {}
     for sell_order in sells:
-        if sell_order.product in auctions:
-            auctions[sell_order.product].sells.append(sell_order)
+        if sell_order.product_id in auctions:
+            auctions[sell_order.product_id].sells.append(sell_order)
         else:
-            new_auction = SingleAuction(sell_order.product)
+            new_auction = SingleAuction(sell_order.product_id)
             new_auction.sells.append(sell_order)
-            auctions[sell_order.product] = new_auction
+            auctions[sell_order.product_id] = new_auction
     # now add the buys
     for buy_order in buys:
-        if buy_order.product in auctions:
-            auctions[buy_order.product].buys.append(buy_order)
+        if buy_order.product_id in auctions:
+            auctions[buy_order.product_id].buys.append(buy_order)
         else:
-            new_auction = SingleAuction(buy_order.product)
+            new_auction = SingleAuction(buy_order.product_id)
             new_auction.buys.append(buy_order)
-            auctions[buy_order.product] = new_auction
+            auctions[buy_order.product_id] = new_auction
     return auctions
 
 

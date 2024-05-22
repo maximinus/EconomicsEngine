@@ -5,6 +5,20 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
+# take a step back
+# we need to store a historical record for 2 reasons:
+# we want to show the data
+# we want entities to be able to reason about the past
+# the simulation depends on cycles, so we save an array of cycle information
+# the cycle information we want is:
+# for every product, the quantity traded, the max and min prices, the amount unsold and offers unfilled
+# for every producer, starting stock and money
+# we convert the stock from a dict to a simple list of lists, which means giving every product an ID
+# also producers need an ID for the same reason.
+
+# we capture the producer info at the start of the process, and the trade infor after the auction
+
+
 class PriceRange:
     def __init__(self, min_price, max_price):
         self.min_price = float(min_price)
@@ -31,11 +45,25 @@ class ProductCycleStats:
         return f'{self.price_range}, Avg: {self.average_price:.2f}, Vol: {self.volume:.2f}'
 
 
+def convert_producer_stock(producer):
+    # convert the producer stock to something simpler
+    pass
+
+
+class CycleInfo:
+    def __init__(self, trades, goods):
+        # this is a dict of {product_id:ProductCycleStats}
+        self.trades_info = trades
+        # this is a dict of {producer_id:[money, [product:amount]}
+        self.goods = goods
+
+
 class History:
     def __init__(self):
         self.cycle_history = []
+        self.producers_this_cycle = None
 
-    def update(self, auctions):
+    def create_sales_stats(self, auctions):
         transactions = []
         [transactions.extend(x.transactions) for x in auctions]
         # now calculate the history for this cycle for each listed product
@@ -53,7 +81,16 @@ class History:
             avg = total_value / quantity_sold
             s = ProductCycleStats(max_price, min_price, avg, quantity_sold, auction.unsold, auction.unfilled_orders)
             stats[auction.product] = s
-        self.cycle_history.append(stats)
+        return stats
+
+    def update_producers(self, producers):
+        self.producers_this_cycle = [convert_producer_stock(x) for x in producers]
+
+    def update_auctions(self, auctions):
+        stats = self.create_sales_stats(auctions)
+        assert self.producers_this_cycle is not None
+        self.cycle_history.append(CycleInfo(stats, self.producers_this_cycle))
+        self.producers_this_cycle = None
 
     def get_last_price(self, product):
         last_cycle = self.cycle_history[-1]
@@ -110,14 +147,14 @@ def show_average_price_graph(history):
     # get all listed products first
     averages = {}
     for i in history.cycle_history:
-        for product in i.keys():
+        for product in i.trades_info.keys():
             if product not in averages:
                 averages[product] = []
     for i in history.cycle_history:
         # examine every product sold over this cycle
-        for product in i.keys():
-            if product in i:
-                averages[product].append(i[product].average_price)
+        for product in i.trades_info.keys():
+            if product in i.trades_info:
+                averages[product].append(i.trades_info[product].average_price)
             else:
                 # this cycle has no volume for this product
                 averages[product].append(0)
