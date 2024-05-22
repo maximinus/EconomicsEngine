@@ -1,0 +1,26 @@
+{
+    "workers": {
+        "total": 10,
+        "money": 10
+    },
+    "products": [
+        {
+            "name": "labor"
+        },
+        {
+            "name": "food",
+            "requires": [
+                {"labor": 10}
+            ]
+        }
+    ],
+    "producers": [
+        {
+            "product": "food",
+            "money": 10,
+            "stock": {
+                "labor": 10
+            }
+        }
+    ]
+}
