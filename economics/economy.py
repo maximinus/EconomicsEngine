@@ -35,5 +35,5 @@ class Economy:
             producer.produce()
         buys = self.get_all_buys()
         sells = self.get_all_sells()
-        transactions = auction(sells, buys)
-        self.history.update(transactions)
+        auctions = auction(sells, buys)
+        self.history.update(auctions)

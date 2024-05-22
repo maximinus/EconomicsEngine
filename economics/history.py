@@ -20,44 +20,39 @@ class PriceRange:
 
 class ProductCycleStats:
     # represents what happened to a product in a given cycle
-    def __init__(self, max_p, min_p, avg, vol):
+    def __init__(self, max_p, min_p, avg, vol, unsold, unfilled):
         self.price_range = PriceRange(min_p, max_p)
         self.average_price = avg
         self.volume = vol
+        self.unsold = 0
+        self.unfilled_orders = 0
 
     def __repr__(self):
         return f'{self.price_range}, Avg: {self.average_price:.2f}, Vol: {self.volume:.2f}'
-
-
-def group_transactions_by_product(transactions):
-    products_sold = {}
-    for transaction in transactions:
-        if transaction.product in products_sold:
-            products_sold[transaction.product].append(transaction)
-        else:
-            products_sold[transaction.product] = [transaction]
-    return products_sold
 
 
 class History:
     def __init__(self):
         self.cycle_history = []
 
-    def update(self, transactions):
-        products_sold = group_transactions_by_product(transactions)
+    def update(self, auctions):
+        transactions = []
+        [transactions.extend(x.transactions) for x in auctions]
         # now calculate the history for this cycle for each listed product
         stats = {}
-        for product, all_sales in products_sold.items():
+        for auction in auctions:
             quantity_sold = 0
             total_value = 0
             max_price = 0
             min_price = math.inf
-            for sale in all_sales:
+            for sale in auction.transactions:
                 quantity_sold += sale.quantity
                 total_value += sale.value
                 max_price = max(max_price, sale.price)
                 min_price = min(min_price, sale.price)
-            stats[product] = ProductCycleStats(max_price, min_price, total_value / quantity_sold, quantity_sold)
+            avg = total_value / quantity_sold
+            s = ProductCycleStats(max_price, min_price, avg, quantity_sold, auction.unsold, auction.unfilled_orders)
+            stats[auction.product] = s
         self.cycle_history.append(stats)
 
     def get_last_price(self, product):
@@ -77,6 +72,18 @@ class History:
         if product not in last_cycle:
             return PriceRange(-1, -1)
         return last_cycle[product].price_range
+
+    def get_last_unsold(self, product):
+        last_cycle = self.cycle_history[-1]
+        if product not in last_cycle:
+            return 0
+        return last_cycle.unsold
+
+    def get_last_unfilled(self, product):
+        last_cycle = self.cycle_history[-1]
+        if product not in last_cycle:
+            return 0
+        return last_cycle.unfilled_orders
 
     def get_product_history(self, product, cycles):
         cycles = min(cycles, len(self.cycle_history))

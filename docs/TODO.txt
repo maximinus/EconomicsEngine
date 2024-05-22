@@ -1,0 +1,20 @@
+Work Plan
+---------
+
+Work should be moved from the top to the bottom.
+
+Show a graph for the amount of funds producers have.
+Enable showing >1 graph at any time.
+With a single producer of food, it should seek to maximise its profits by simply increasing the price.
+Add >1 producer of food and the market should stablise as competition works.
+Add a modifier "environmental" which adds a random modifer to the production of goods tagged with this.
+Add the tag to the config file.
+Add a modifier "natural loss", which means a certain % of held product is lost per cycle.
+Observe changes over long periods.
+
+
+Changes completed
+-----------------
+
+Made failing history checks pass
+History contains a value for the amount of product that was unsold, and offered but not sold
