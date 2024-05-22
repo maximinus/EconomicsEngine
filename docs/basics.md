@@ -1,4 +1,4 @@
-# Economy v0.1
+# Economics Engine v0.1
 
 
 ## Overview
