@@ -10,7 +10,4 @@ def adjust_price_by_sales(producer, history):
     # the history is only going to tell me what the market was like, I also need to know
     # what it was like for me
     sales = history.get_last_sales(producer.product.id)
-    #print(sales)
-    # finished with auction results
-    producer.auction_results = []
     return producer.sale_price

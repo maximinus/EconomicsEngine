@@ -172,9 +172,13 @@ class Workers(Producer):
         # the labor offer is the average cost of the worker
         # to start with, we handle this as a fixed cost
         # 1 unit of money per worker
+        sell = SellOffer(self, self.labor_id, self.workers, 1)
+        self.cycle_history[-1].sell_offers.append(sell.copy())
         return [SellOffer(self, self.labor_id, self.workers, 1)]
 
     def get_buy_orders(self):
         # workers require 1 food per worker per cycle
         max_price = self.money / self.workers
-        return [BuyOffer(self, self.desires[0], self.workers, max_price)]
+        buy = BuyOffer(self, self.desires[0], self.workers, max_price)
+        self.cycle_history[-1].buy_offers.append(buy.copy())
+        return [buy]
