@@ -12,48 +12,48 @@ class TestSingleAuction(unittest.TestCase):
         self.buyer = Producer(self.product, 10.0)
 
     def test_null_auction(self):
-        auction = SingleAuction()
+        auction = SingleAuction(self.product.id)
         self.assertFalse(auction.valid)
 
     def test_no_buys(self):
-        auction = SingleAuction()
+        auction = SingleAuction(self.product.id)
         auction.sells.append(SellOffer(self.seller, self.product, 1.0, 1.0))
         self.assertFalse(auction.valid)
 
     def test_no_sales(self):
-        auction = SingleAuction()
+        auction = SingleAuction(self.product.id)
         auction.buys.append(BuyOffer(self.buyer, self.product, 1.0, 1.0))
         self.assertFalse(auction.valid)
 
     def test_single_sale(self):
-        auction = SingleAuction()
+        auction = SingleAuction(self.product.id)
         self.seller.money = 0.0
         self.buyer.money = 10.0
-        auction.sells.append(SellOffer(self.seller, self.product, 1.0, 1.0))
-        auction.buys.append(BuyOffer(self.buyer, self.product, 1.0, 1.0))
+        auction.sells.append(SellOffer(self.seller, self.product.id, 1.0, 1.0))
+        auction.buys.append(BuyOffer(self.buyer, self.product.id, 1.0, 1.0))
         auction.perform()
         self.assertEqual(self.seller.money, 1.0)
 
     def test_sale_transaction(self):
-        auction = SingleAuction()
+        auction = SingleAuction(self.product.id)
         self.seller.money = 0.0
         self.buyer.money = 10.0
-        auction.sells.append(SellOffer(self.seller, self.product, 1.0, 1.0))
-        auction.buys.append(BuyOffer(self.buyer, self.product, 1.0, 1.0))
-        transactions = auction.perform()
-        self.assertEqual(len(transactions), 1)
-        self.assertEqual(transactions[0].quantity, 1.0)
+        auction.sells.append(SellOffer(self.seller, self.product.id, 1.0, 1.0))
+        auction.buys.append(BuyOffer(self.buyer, self.product.id, 1.0, 1.0))
+        auction.perform()
+        self.assertEqual(len(auction.transactions), 1)
+        self.assertEqual(auction.transactions[0].quantity, 1.0)
 
     def test_sell_price(self):
         # the sale proce should be the average of the buy and sell prices
-        auction = SingleAuction()
+        auction = SingleAuction(self.product.id)
         self.seller.money = 0.0
         self.buyer.money = 10.0
-        auction.sells.append(SellOffer(self.seller, self.product, 1.0, 2.0))
-        auction.buys.append(BuyOffer(self.buyer, self.product, 1.0, 10.0))
-        transactions = auction.perform()
+        auction.sells.append(SellOffer(self.seller, self.product.id, 1.0, 2.0))
+        auction.buys.append(BuyOffer(self.buyer, self.product.id, 1.0, 10.0))
+        auction.perform()
         # final price should be 10 + 2 / 2 -> 6
-        self.assertEqual(transactions[0].price, 6.0)
+        self.assertEqual(auction.transactions[0].price, 6.0)
 
 
 class TestCreateAuctions(unittest.TestCase):
