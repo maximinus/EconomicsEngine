@@ -1,4 +1,5 @@
 from economics.offers import Transaction
+from economics.producer import BuyResult, SellResult
 
 
 class SingleAuction:
@@ -14,11 +15,7 @@ class SingleAuction:
     @property
     def valid(self):
         # are there at least >1 buy and sell offers?
-        if len(self.sells) == 0:
-            return False
-        if len(self.buys) == 0:
-            return False
-        return True
+        return not (len(self.sells) == 0 or len(self.buys) == 0)
 
     def do_transaction(self, sell, buy):
         # buyer will buy as many as they can at this price
@@ -32,6 +29,9 @@ class SingleAuction:
         sell.seller.remove_stock(buy.product_id, quantity_sold)
         sell.total_offered -= quantity_sold
         buy.total_wanted -= quantity_sold
+        # the 2 producers here will need some signals about their sales
+        sell.seller.add_sale(SellResult(sell.cost_per_unit, unit_cost, quantity_sold, buy.product_id))
+        buy.buyer.add_purchase(BuyResult(buy.max_price, unit_cost, quantity_sold, buy.product_id))
         self.transactions.append(Transaction(buy.product_id, quantity_sold, unit_cost))
 
     def perform(self):

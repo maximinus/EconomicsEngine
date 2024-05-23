@@ -18,3 +18,4 @@ Changes completed
 
 Made failing history checks pass
 History contains a value for the amount of product that was unsold, and offered but not sold
+All products have an id, which is passed around instead of the product itself

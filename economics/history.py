@@ -53,7 +53,7 @@ def convert_producer_stock(producer):
 class CycleInfo:
     def __init__(self, trades, goods):
         # this is a dict of {product_id:ProductCycleStats}
-        self.trades_info = trades
+        self.trades = trades
         # this is a dict of {producer_id:[money, [product:amount]}
         self.goods = goods
 
@@ -95,53 +95,46 @@ class History:
         self.cycle_history.append(CycleInfo(stats, self.producers_this_cycle))
         self.producers_this_cycle = None
 
-    def get_last_price(self, product):
-        last_cycle = self.cycle_history[-1]
-        if product not in last_cycle:
+    def update(self, auctions, producers):
+        # used to push a whole cycle in one go - useful for tests
+        stats = self.create_sales_stats(auctions)
+        self.cycle_history.append(CycleInfo(stats, producers))
+
+    def get_last_sales(self, product_id):
+        last_trade = self.cycle_history[-1].trades
+        if product_id not in last_trade:
+            return
+        return last_trade[product_id]
+
+    def get_last_price(self, product_id):
+        last_trade = self.cycle_history[-1].trades
+        if product_id not in last_trade:
             return -1
-        return last_cycle[product].average_price
+        return last_trade[product_id].average_price
 
     def get_last_volume(self, product):
-        last_cycle = self.cycle_history[-1]
-        if product not in last_cycle:
+        last_trade = self.cycle_history[-1].trades
+        if product not in last_trade:
             return -1
-        return last_cycle[product].volume
+        return last_trade[product].volume
 
     def get_last_price_range(self, product):
-        last_cycle = self.cycle_history[-1]
-        if product not in last_cycle:
+        last_trade = self.cycle_history[-1].trades
+        if product not in last_trade:
             return PriceRange(-1, -1)
-        return last_cycle[product].price_range
+        return last_trade[product].price_range
 
     def get_last_unsold(self, product):
-        last_cycle = self.cycle_history[-1]
-        if product not in last_cycle:
+        last_trade = self.cycle_history[-1].trades
+        if product not in last_trade:
             return 0
-        return last_cycle.unsold
+        return last_trade.unsold
 
     def get_last_unfilled(self, product):
-        last_cycle = self.cycle_history[-1]
-        if product not in last_cycle:
+        last_trade = self.cycle_history[-1].trades
+        if product not in last_trade:
             return 0
-        return last_cycle.unfilled_orders
-
-    def get_product_history(self, product, cycles):
-        cycles = min(cycles, len(self.cycle_history))
-        return [self.cycle_history[x].get(product, None) for x in range(-cycles, 0)]
-
-    def get_long_term_price(self, product, cycles):
-        stats = self.get_product_history(product, cycles)
-        prices = [x.average_price for x in stats if x is not None]
-        if len(prices) == 0:
-            return -1
-        return statistics.mean(prices)
-
-    def get_long_term_volume(self, product, cycles):
-        stats = self.get_product_history(product, cycles)
-        prices = [x.volume for x in stats if x is not None]
-        if len(prices) == 0:
-            return -1
-        return statistics.mean(prices)
+        return last_trade.unfilled_orders
 
 
 def show_average_price_graph(economy):
@@ -151,14 +144,14 @@ def show_average_price_graph(economy):
     history = economy.history
     averages = {}
     for i in history.cycle_history:
-        for product in i.trades_info.keys():
+        for product in i.trades.keys():
             if product not in averages:
                 averages[product] = []
     for i in history.cycle_history:
         # examine every product sold over this cycle
-        for product in i.trades_info.keys():
-            if product in i.trades_info:
-                averages[product].append(i.trades_info[product].average_price)
+        for product in i.trades.keys():
+            if product in i.trades:
+                averages[product].append(i.trades[product].average_price)
             else:
                 # this cycle has no volume for this product
                 averages[product].append(0)

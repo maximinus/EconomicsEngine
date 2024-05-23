@@ -3,7 +3,6 @@ from economics.auctions import auction
 
 
 class Economy:
-    # there is only ever one economy
     def __init__(self, products, producers):
         # sort products by id to be sure
         self.products = sorted(products, key=lambda x: x.id)
@@ -36,8 +35,11 @@ class Economy:
         # it may be that it is better for producers to not sell all stock to start with
         self.history.update_producers(self.producers)
         for producer in self.producers:
+            producer.init_cycle()
             producer.produce()
         buys = self.get_all_buys()
         sells = self.get_all_sells()
         auctions = auction(sells, buys)
         self.history.update_auctions(auctions)
+        for producer in self.producers:
+            producer.post_cycle(self.history)

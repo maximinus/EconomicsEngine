@@ -15,7 +15,7 @@ REQUIRED_PRODUCTS = [LABOR_TAG, FOOD_TAG]
 
 
 def create_workers(worker_data, products):
-    return Workers(float(worker_data['total']), products[LABOR_TAG].id, products[FOOD_TAG].id)
+    return Workers(float(worker_data['total']), products[LABOR_TAG], products[FOOD_TAG].id)
 
 
 def create_products(product_data):

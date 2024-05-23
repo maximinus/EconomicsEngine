@@ -5,6 +5,9 @@ class SellOffer:
         self.total_offered = float(total)
         self.cost_per_unit = float(cost_per_unit)
 
+    def copy(self):
+        return SellOffer(self.seller, self.product_id, self.total_offered, self.cost_per_unit)
+
     @property
     def value(self):
         return self.total_offered * self.cost_per_unit
@@ -20,6 +23,9 @@ class BuyOffer:
         self.product_id = product_id
         self.total_wanted = float(total)
         self.max_price = float(max_price)
+
+    def copy(self):
+        return BuyOffer(self.buyer, self.product_id, self.total_wanted, self.max_price)
 
     def __repr__(self):
         return f'Buy up to {self.total_wanted} {self.product_id} @ max {self.max_price} each'

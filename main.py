@@ -2,7 +2,6 @@ from pathlib import Path
 
 from economics.loader import load_economy
 from economics.history import show_average_price_graph
-from economics.economy import Economy
 
 CONFIG_FILE = Path('./examples/basic.json')
 
