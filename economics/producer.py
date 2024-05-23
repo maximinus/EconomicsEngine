@@ -2,7 +2,6 @@ import itertools
 
 from economics.offers import SellOffer, BuyOffer
 from economics.errors import EconomyNoStockToRemove
-from economics.economy import Economy
 
 
 class Requirement:
@@ -90,7 +89,7 @@ class Producer:
             self.stock = {}
         else:
             self.stock = stock
-        self.stock[self.product] = 0.0
+        self.stock[self.product.id] = 0.0
         self.last_consumption = {}
 
     def consume_stock(self, production):

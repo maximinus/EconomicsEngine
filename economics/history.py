@@ -78,9 +78,12 @@ class History:
                 total_value += sale.value
                 max_price = max(max_price, sale.price)
                 min_price = min(min_price, sale.price)
-            avg = total_value / quantity_sold
+            if quantity_sold > 0:
+                avg = total_value / quantity_sold
+            else:
+                avg = 0.0
             s = ProductCycleStats(max_price, min_price, avg, quantity_sold, auction.unsold, auction.unfilled_orders)
-            stats[auction.product] = s
+            stats[auction.product_id] = s
         return stats
 
     def update_producers(self, producers):
@@ -141,10 +144,11 @@ class History:
         return statistics.mean(prices)
 
 
-def show_average_price_graph(history):
+def show_average_price_graph(economy):
     # we need to calculate the entirety of prices
     # some years may be missing a price, for this we need to save "zero"
     # get all listed products first
+    history = economy.history
     averages = {}
     for i in history.cycle_history:
         for product in i.trades_info.keys():
@@ -162,8 +166,8 @@ def show_average_price_graph(history):
     # now we can generate the graph
     # we have a dict of {product: array_of_average_prices}
     fig, ax = plt.subplots()
-    for product, values in averages.items():
-        ax.plot(values, label=product.name)
+    for product_id, values in averages.items():
+        ax.plot(values, label=economy.get_product(product_id).name)
     ax.legend()
     ax.set_xlabel('Cycle')
     ax.set_ylabel('Price')

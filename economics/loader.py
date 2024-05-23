@@ -15,7 +15,7 @@ REQUIRED_PRODUCTS = [LABOR_TAG, FOOD_TAG]
 
 
 def create_workers(worker_data, products):
-    return Workers(float(worker_data['total']), products[LABOR_TAG], products[FOOD_TAG])
+    return Workers(float(worker_data['total']), products[LABOR_TAG].id, products[FOOD_TAG].id)
 
 
 def create_products(product_data):
@@ -31,7 +31,7 @@ def create_products(product_data):
         if REQUIRED_TAG in product_details:
             for require_data in product_details[REQUIRED_TAG]:
                 for name, quantity in require_data.items():
-                    r = Requirement(products[name], quantity)
+                    r = Requirement(products[name].id, quantity)
                     products[product_details['name']].required.append(r)
     return products
 
@@ -41,7 +41,7 @@ def create_producers(producer_data, products):
     for single_producer in producer_data:
         starting_stock = {}
         for name, value in single_producer['stock'].items():
-            starting_stock[products[name]] = value
+            starting_stock[products[name].id] = value
         new_producer = Producer(products[single_producer['product']],
                                 single_producer['money'],
                                 starting_stock)
