@@ -16,5 +16,5 @@ class TestProduct(unittest.TestCase):
         a = Product('A')
         b = Product('B')
         c = Product('C', required=[a.requirement(2), b.requirement(3)])
-        stock = {a:10, b: 6}
+        stock = {a.id:10, b.id: 6}
         self.assertEqual(c.get_max_production(stock), 2)
