@@ -61,12 +61,41 @@ class BuyResult:
         self.product_id = product
 
 
+class ProductSaleResults:
+    def __init__(self, offers, sales, price, avg):
+        self.offers = offers
+        self.sales = sales
+        self.set_price = price
+        self.average = avg
+
+
 class ProducerCycleHistory:
     def __init__(self):
         self.auction_sales = []
         self.auction_buys = []
         self.sell_offers = []
         self.buy_offers = []
+
+    def get_sale_info(self, product_id):
+        # how much we tried to sell; how many we sold; the price we set; the average sale price
+        total_offers = 0
+        set_price = 0
+        total_sales = 0
+        sale_prices = []
+        for i in self.sell_offers:
+            if i.product_id == product_id:
+                total_offers = i.total_offered
+                set_price = i.cost_per_unit
+                break
+        for i in self.auction_sales:
+            if i.product_id == product_id:
+                sale_prices.append(i.actual_price)
+                total_sales += i.quantity
+        if len(sale_prices) == 0:
+            average = 0.0
+        else:
+            average = sum(sale_prices) / len(sale_prices)
+        return ProductSaleResults(total_offers, total_sales, set_price, average)
 
 
 class Producer:
@@ -160,6 +189,7 @@ class Workers(Producer):
         self.workers = total
 
     def produce(self):
+        # workers don't make anything (!)
         pass
 
     def init_cycle(self):
